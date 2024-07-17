@@ -8,9 +8,9 @@ Library for interfacing Quectel modems (BC95, BG96, EC2X, M26, UG96) under MbedC
 4. In the top level `CMakeList.txt` also do not forget link library `mbed-cellular`
 5. In `mbed_app.json5` file add requested driver component. For example
 ```
-			"target.components_add": [
-                "QUECTEL_UG96"
-            ]
+   "target.components_add": [
+      "QUECTEL_UG96"
+   ]
 ```
 6. Make your code.
 7. Build the project
