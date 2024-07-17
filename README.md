@@ -1,9 +1,5 @@
-# Quectel-Cellular-Driver
-Cellular driver for Quectel modems
-
-# DHT library for MbedCE
-
-Library for interfacing DHT sensors (DHT11, DHT21, DHT22 and more - info in header file) under MbedCE. DHT sensor are popular because are cheap and is working on one data wire.
+# Quectel-Cellular-Driver library for MbedCE
+Library for interfacing Quectel modems (BC95, BG96, EC2X, M26, UG96) under MbedCE.
 
 ## How to start
 1. Create a new project according to [MbedCE instructions](https://github.com/mbed-ce/mbed-os/wiki)
