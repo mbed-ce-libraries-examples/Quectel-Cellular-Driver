@@ -27,26 +27,6 @@ using namespace mbed;
 using namespace rtos;
 using namespace events;
 
-#if !defined(MBED_CONF_QUECTEL_EC2X_PWR)
-#define MBED_CONF_QUECTEL_EC2X_PWR    NC
-#endif
-
-#if !defined(MBED_CONF_QUECTEL_EC2X_RST)
-#define MBED_CONF_QUECTEL_EC2X_RST    NC
-#endif
-
-#if !defined(MBED_CONF_QUECTEL_EC2X_TX)
-#define MBED_CONF_QUECTEL_EC2X_TX    NC
-#endif
-
-#if !defined(MBED_CONF_QUECTEL_EC2X_RX)
-#define MBED_CONF_QUECTEL_EC2X_RX    NC
-#endif
-
-#if !defined(MBED_CONF_QUECTEL_EC2X_POLARITY)
-#define MBED_CONF_QUECTEL_EC2X_POLARITY    1 // active high
-#endif
-
 #if !defined(MBED_CONF_QUECTEL_EC2X_START_TIMEOUT)
 #define MBED_CONF_QUECTEL_EC2X_START_TIMEOUT    15000
 #endif
@@ -83,23 +63,6 @@ QUECTEL_EC2X::QUECTEL_EC2X(FileHandle *fh, PinName pwr, bool active_high, PinNam
 {
     set_cellular_properties(cellular_properties);
 }
-
-#if MBED_CONF_QUECTEL_EC2X_PROVIDE_DEFAULT
-CellularDevice *CellularDevice::get_default_instance()
-{
-    static BufferedSerial serial(MBED_CONF_QUECTEL_EC2X_TX,
-                                 MBED_CONF_QUECTEL_EC2X_RX,
-                                 MBED_CONF_QUECTEL_EC2X_BAUDRATE);
-#if defined(MBED_CONF_QUECTEL_EC2X_RTS) && defined(MBED_CONF_QUECTEL_EC2X_CTS)
-    serial.set_flow_control(SerialBase::RTSCTS, MBED_CONF_QUECTEL_EC2X_RTS, MBED_CONF_QUECTEL_EC2X_CTS);
-#endif
-    static QUECTEL_EC2X device(&serial,
-                               MBED_CONF_QUECTEL_EC2X_PWR,
-                               MBED_CONF_QUECTEL_EC2X_POLARITY,
-                               MBED_CONF_QUECTEL_EC2X_RST);
-    return &device;
-}
-#endif
 
 nsapi_error_t QUECTEL_EC2X::press_power_button(duration<uint32_t, std::milli> timeout)
 {
