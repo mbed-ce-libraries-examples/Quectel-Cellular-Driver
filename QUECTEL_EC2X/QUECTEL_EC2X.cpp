@@ -55,9 +55,10 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     0,  // PROPERTY_AT_SEND_DELAY
 };
 
-QUECTEL_EC2X::QUECTEL_EC2X(FileHandle *fh, PinName pwr, bool active_high, PinName rst)
+QUECTEL_EC2X::QUECTEL_EC2X(FileHandle *fh, PinName pwr, bool active_high, PinName rst, bool use_flow_control)
     : AT_CellularDevice(fh),
       _active_high(active_high),
+      _use_flow_control(use_flow_control),
       _pwr_key(pwr, !_active_high),
       _rst(rst, !_active_high)
 {
@@ -103,6 +104,16 @@ nsapi_error_t QUECTEL_EC2X::soft_power_on()
         bool rdy = _at.consume_to_stop_tag();
         _at.set_stop_tag(OK);
 
+        if(_use_flow_control){
+            if (_at.at_cmd_discard("+IFC", "=", "%d%d", 2, 2) != NSAPI_ERROR_OK) {
+                printf("Set flow control failed");
+                return NSAPI_ERROR_DEVICE_ERROR;
+            }
+            if (_at.at_cmd_discard("&W", "", "") != NSAPI_ERROR_OK) {
+                printf("Set flow control failed");
+                return NSAPI_ERROR_DEVICE_ERROR;
+            }
+        }
         _at.unlock();
 
         if (!rdy) {
