@@ -1,5 +1,5 @@
 # Quectel-Cellular-Driver library for MbedCE
-Library for interfacing Quectel modems (BC95, BG96, EC2X, M26, UG96) under MbedCE.
+Library for interfacing Quectel modems (BC95, BG96, EC2X, M26, UG96, EG915) under MbedCE.
 
 ## How to start
 1. Create a new project according to [MbedCE instructions](https://github.com/mbed-ce/mbed-os/wiki)
@@ -20,13 +20,14 @@ CellularDevice *CellularDevice::get_default_instance()
                                  <your serial rx pin>,
                                  <serial baudrate>);
 
-    // Optional, if your hardware supports flow control
+    // Optional, if your hardware supports flow control, set the flag below to match
     serial.set_flow_control(SerialBase::RTSCTS, <your RTS pin>, <your CTS pin>);
     
     static QUECTEL_EC2X device(&serial,
                                <modem PWR pin.  Optional, can be NC>,
                                <modem PWR/RST polarity.  true = PWR and RST disable device when high, false = PWR and RST disable device when low.>
-                               <modem RST pin.  Required.>);
+                               <modem RST pin.  Required.>
+                               <modem flow control, Optional);
     return &device;
 }
 ```
