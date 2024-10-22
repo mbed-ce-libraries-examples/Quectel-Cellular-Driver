@@ -1,0 +1,9 @@
+{
+    "name": "QUECTEL_EG915",
+    "config": {
+        "start-timeout": {
+            "help": "How long to wait for modem to start after reset (milliseconds)",
+            "value": 15000
+        }
+    }
+}

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "QUECTEL_EC2X.h"
+#include "QUECTEL_EG915.h"
 
 #include "PinNames.h"
 #include "AT_CellularNetwork.h"
@@ -27,8 +27,8 @@ using namespace mbed;
 using namespace rtos;
 using namespace events;
 
-#if !defined(MBED_CONF_QUECTEL_EC2X_START_TIMEOUT)
-#define MBED_CONF_QUECTEL_EC2X_START_TIMEOUT    15000
+#if !defined(MBED_CONF_QUECTEL_EG915_START_TIMEOUT)
+#define MBED_CONF_QUECTEL_EG915_START_TIMEOUT    15000
 #endif
 
 
@@ -37,7 +37,7 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     AT_CellularNetwork::RegistrationModeLAC,    // C_GREG
     AT_CellularNetwork::RegistrationModeLAC,    // C_REG
     0,  // AT_CGSN_WITH_TYPE
-    1,  // AT_CGDATA
+    0,  // AT_CGDATA
     0,  // AT_CGAUTH
     1,  // AT_CNMI
     1,  // AT_CSMP
@@ -55,16 +55,17 @@ static const intptr_t cellular_properties[AT_CellularDevice::PROPERTY_MAX] = {
     0,  // PROPERTY_AT_SEND_DELAY
 };
 
-QUECTEL_EC2X::QUECTEL_EC2X(FileHandle *fh, PinName pwr, bool active_high, PinName rst)
+QUECTEL_EG915::QUECTEL_EG915(FileHandle *fh, PinName pwr, bool active_high, PinName rst, bool use_flow_control)
     : AT_CellularDevice(fh),
       _active_high(active_high),
+      _use_flow_control(use_flow_control),
       _pwr_key(pwr, !_active_high),
       _rst(rst, !_active_high)
 {
     set_cellular_properties(cellular_properties);
 }
 
-nsapi_error_t QUECTEL_EC2X::press_power_button(duration<uint32_t, std::milli> timeout)
+nsapi_error_t QUECTEL_EG915::press_power_button(duration<uint32_t, std::milli> timeout)
 {
     if (_pwr_key.is_connected()) {
         _pwr_key = _active_high;
@@ -76,18 +77,18 @@ nsapi_error_t QUECTEL_EC2X::press_power_button(duration<uint32_t, std::milli> ti
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t QUECTEL_EC2X::hard_power_on()
+nsapi_error_t QUECTEL_EG915::hard_power_on()
 {
     return press_power_button(600ms);
 }
 
-nsapi_error_t QUECTEL_EC2X::hard_power_off()
+nsapi_error_t QUECTEL_EG915::hard_power_off()
 
 {
     return press_power_button(750ms);
 }
 
-nsapi_error_t QUECTEL_EC2X::soft_power_on()
+nsapi_error_t QUECTEL_EG915::soft_power_on()
 {
     if (_rst.is_connected()) {
         _rst = _active_high;
@@ -97,12 +98,23 @@ nsapi_error_t QUECTEL_EC2X::soft_power_on()
 
         _at.lock();
 
-        _at.set_at_timeout(milliseconds(MBED_CONF_QUECTEL_EC2X_START_TIMEOUT));
+        _at.set_at_timeout(milliseconds(MBED_CONF_QUECTEL_EG915_START_TIMEOUT));
         _at.resp_start();
         _at.set_stop_tag("RDY");
         bool rdy = _at.consume_to_stop_tag();
         _at.set_stop_tag(OK);
+        _at.restore_at_timeout();
 
+        if(_use_flow_control){
+            if (_at.at_cmd_discard("+IFC", "=", "%d%d", 2, 2) != NSAPI_ERROR_OK) {
+                printf("Set flow control failed");
+                return NSAPI_ERROR_DEVICE_ERROR;
+            }
+            if (_at.at_cmd_discard("&W", "", "") != NSAPI_ERROR_OK) {
+                printf("Set flow control failed");
+                return NSAPI_ERROR_DEVICE_ERROR;
+            }
+        }
         _at.unlock();
 
         if (!rdy) {
@@ -113,7 +125,7 @@ nsapi_error_t QUECTEL_EC2X::soft_power_on()
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t QUECTEL_EC2X::soft_power_off()
+nsapi_error_t QUECTEL_EG915::soft_power_off()
 {
     return hard_power_off();
 }

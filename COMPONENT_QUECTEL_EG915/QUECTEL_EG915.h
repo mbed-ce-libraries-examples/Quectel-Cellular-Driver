@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef QUECTEL_EC2X_H
-#define QUECTEL_EC2X_H
+#ifndef QUECTEL_EG915_H
+#define QUECTEL_EG915_H
 
 #include <chrono>
 #include "DigitalOut.h"
@@ -24,7 +24,7 @@
 
 namespace mbed {
 
-class QUECTEL_EC2X : public AT_CellularDevice {
+class QUECTEL_EG915 : public AT_CellularDevice {
 public:
 
     /**
@@ -32,7 +32,7 @@ public:
      * a FileHandle object, the power pin and the polarity of the pin.
      * Providing reset pin is optional.
      */
-    QUECTEL_EC2X(FileHandle *fh, PinName pwr, bool active_high, PinName rst = NC);
+    QUECTEL_EG915(FileHandle *fh, PinName pwr, bool active_high, PinName rst = NC, bool use_flow_control = false);
 
     virtual nsapi_error_t hard_power_on();
     virtual nsapi_error_t hard_power_off();
@@ -42,10 +42,11 @@ public:
 private:
     nsapi_error_t press_power_button(std::chrono::duration<uint32_t, std::milli> timeout);
     bool _active_high;
+    bool _use_flow_control;
     DigitalOut _pwr_key;
     DigitalOut _rst;
 };
 
 } // namespace mbed
 
-#endif // QUECTEL_EC2X_H
+#endif // QUECTEL_EG915_H
